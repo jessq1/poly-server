@@ -23,7 +23,7 @@ const decodeUserFromToken = ((req: IGetUserAuthInfoRequest, res: Response, next:
 	}
 })
 
-function checkAuth(req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) {
+const checkAuth = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
 	return req.user ? next() : res.status(401).json({ msg: 'Not Authorized' })
 }
 
