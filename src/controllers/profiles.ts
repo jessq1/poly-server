@@ -11,8 +11,8 @@ export {
 function index(req: IGetUserAuthInfoRequest, res: Response) {
   Profile.find({})
   .populate('friends')
-  .populate('payment')
-  .populate('events')
+//   .populate('payment')
+//   .populate('events')
   .then(profiles => {
     res.json(profiles)
   })
@@ -21,8 +21,8 @@ function index(req: IGetUserAuthInfoRequest, res: Response) {
 function userProfile(req: IGetUserAuthInfoRequest, res: Response) {
   Profile.findById(req.user.profile)
   .populate('friends')
-  .populate('payment')
-  .populate('events')
+//   .populate('payment')
+//   .populate('events')
   .then(profile => {
     res.json(profile)
   })
