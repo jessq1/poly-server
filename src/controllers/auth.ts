@@ -31,6 +31,16 @@ async function signup(req: Request, res: Response) {
   const profile = new Profile(req.body)
   req.body.profile = profile._id
   const user = new User(req.body)
+  const account = await stripe.accounts.create({
+    type: 'custom',
+    country: 'US',
+    email: req.body.email,
+    capabilities: {
+      card_payments: {requested: true},
+      transfers: {requested: true},
+    },
+  })
+  profile.stripeCustomerId = account.id
   try {
     await user.save();
     await profile.save();
