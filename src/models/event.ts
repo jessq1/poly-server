@@ -13,6 +13,8 @@ const eventSchema = new mongoose.Schema(
     paymentTo: {type: mongoose.Schema.Types.ObjectId, ref: "Profile"},
     completed: Boolean,
     likes: Number,
+    stripePaymentIntentId: String,
+    created: { type: Date, default: Date.now },
   },
   {
     timestamps: true,

@@ -5,7 +5,8 @@ const SALT_ROUNDS = 6
 export { User }
 
 const userSchema = new mongoose.Schema({
-  name: String,
+  firstName: String,
+  lastName: String,
   email: { type: String, required: true, lowercase: true, unique: true },
   password: String,
   profile: {type: mongoose.Schema.Types.ObjectId, ref: "Profile"}

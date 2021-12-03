@@ -2,6 +2,7 @@ import { User } from '../models/user'
 import { Profile } from '../models/profile'
 import jwt from 'jsonwebtoken'
 import { Request, Response } from "express";
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 
 export {
