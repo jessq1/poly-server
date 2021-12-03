@@ -15,3 +15,4 @@ const router: Router = Router();
 router.use(decodeUserFromToken)
 router.get('/userProfile', checkAuth, profilesCtrl.userProfile)
 router.get('/', checkAuth, profilesCtrl.index)
+router.get('/stripe/authorize', checkAuth, profilesCtrl.stripeAuthLink)

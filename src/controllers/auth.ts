@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import { Request, Response } from "express";
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-
+const siteUrl = process.env.SITE_URL
 export {
   signup,
   login
@@ -41,13 +41,15 @@ async function signup(req: Request, res: Response) {
     },
   })
   profile.stripeCustomerId = account.id
+  
   try {
     await user.save();
     await profile.save();
 
     const token = createJWT(user)
     res.json({ token })
-  
+    
+
   } catch (err: any) {
     res.status(400).send({ err: err.errmsg })
   }
