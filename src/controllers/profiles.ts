@@ -22,7 +22,7 @@ function index(req: IGetUserAuthInfoRequest, res: Response) {
 }
 
 function userProfile(req: IGetUserAuthInfoRequest, res: Response) {
-  Profile.findById(req.user.profile)
+  Profile.findById(req.user?.profile)
   .populate('friends')
   .populate('payment')
 //   .populate('events')
@@ -33,14 +33,14 @@ function userProfile(req: IGetUserAuthInfoRequest, res: Response) {
 
 async function stripeAuthLink(req: IGetUserAuthInfoRequest, res: Response) {
   const profile = await Profile.findById(req.user.profile)
-    
+
   const accountLink = await stripe.accountLinks.create({
       account: profile.stripeCustomerId,
       refresh_url: siteUrl + '/login',
       return_url: siteUrl + '/',
       type: 'account_onboarding',
     })
-  // console.log(accountLink)
+  console.log(accountLink)
   // res.redirect(
   //     accountLink.url
   //   );

@@ -48,7 +48,6 @@ async function signup(req: Request, res: Response) {
 
     const token = createJWT(user)
     res.json({ token })
-    
 
   } catch (err: any) {
     res.status(400).send({ err: err.errmsg })
