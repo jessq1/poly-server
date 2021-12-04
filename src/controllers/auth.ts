@@ -2,8 +2,9 @@ import { User } from '../models/user'
 import { Profile } from '../models/profile'
 import jwt from 'jsonwebtoken'
 import { Request, Response } from "express";
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-
+const siteUrl = process.env.SITE_URL
 export {
   signup,
   login
@@ -30,13 +31,24 @@ async function signup(req: Request, res: Response) {
   const profile = new Profile(req.body)
   req.body.profile = profile._id
   const user = new User(req.body)
+  const account = await stripe.accounts.create({
+    type: 'custom',
+    country: 'US',
+    email: req.body.email,
+    capabilities: {
+      card_payments: {requested: true},
+      transfers: {requested: true},
+    },
+  })
+  profile.stripeCustomerId = account.id
+  
   try {
     await user.save();
     await profile.save();
 
     const token = createJWT(user)
     res.json({ token })
-  
+
   } catch (err: any) {
     res.status(400).send({ err: err.errmsg })
   }

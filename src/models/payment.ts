@@ -10,9 +10,11 @@ const paymentSchema = new mongoose.Schema(
     initiator: {type: mongoose.Schema.Types.ObjectId, ref: "Profile"},
     paymentFrom: [{type: mongoose.Schema.Types.ObjectId, ref: "Profile"}],
     paymentTo: {type: mongoose.Schema.Types.ObjectId, ref: "Profile"},
+    note: String,
     completed: Boolean,
     likes: Number,
-    note: String,
+    stripePaymentIntentId: String,
+    created: { type: Date, default: Date.now },
   },
   {
     timestamps: true,
