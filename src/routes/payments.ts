@@ -13,5 +13,12 @@ router.use(decodeUserFromToken)
 router.post('/', checkAuth, paymentsCtrl.create)
 router.delete('/:id', checkAuth, paymentsCtrl.delete)
 router.patch('/:id', checkAuth, paymentsCtrl.update)
+router.get('/', checkAuth, paymentsCtrl.index)
+router.get('/incomplete', checkAuth, paymentsCtrl.indexIncompletePayment)
+router.get('/pending', checkAuth, paymentsCtrl.indexPendingPayment)
+router.get('/profile', checkAuth, paymentsCtrl.indexProfilePayment)
+
+
+
 
 export { router }
