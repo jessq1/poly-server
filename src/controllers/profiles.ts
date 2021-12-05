@@ -15,10 +15,9 @@ export {
 }
 
 function index(req: IGetUserAuthInfoRequest, res: Response) {
-  Profile.find({stripeOnboard: true})
+  Profile.find({stripeOnboard: true, _id: { $ne: req.user.profile }})
   .populate('friends')
   .populate('payment')
-//   .populate('events')
   .then(profiles => {
     res.json(profiles)
   })
@@ -28,7 +27,6 @@ function userProfile(req: IGetUserAuthInfoRequest, res: Response) {
   Profile.findById(req.user?.profile)
   .populate('friends')
   .populate('payment')
-  // .populate('events')
   .then(profile => {
     return checkStripeOnboarding(profile)
   }).then(profile => {
