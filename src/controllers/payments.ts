@@ -22,7 +22,7 @@ function create(req: IGetUserAuthInfoRequest, res: Response) {
 }
 
 function index(req: IGetUserAuthInfoRequest, res: Response) {
-  Payment.find({'completed': true})
+  Payment.find({'completed': false})
   .populate([
     {
       path: 'initiator',
@@ -60,7 +60,7 @@ function indexPendingPayment(req: IGetUserAuthInfoRequest, res: Response) {
 
 function indexIncompletePayment(req: IGetUserAuthInfoRequest, res: Response) {
   const profileId = req.user.profile
-  Payment.find({'person': profileId, 'completed': true})
+  Payment.find({'person': profileId, 'completed': false})
   .populate([
     {
       path: 'initiator',
