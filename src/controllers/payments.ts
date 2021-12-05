@@ -15,25 +15,28 @@ function create(req: IGetUserAuthInfoRequest, res: Response) {
   }
   Payment.create(req.body)
   .then(newPayment => {
-    newPayment.populate('initiator').populate('paymentFrom').populate('paymentTo')
+    return createPaymentIntent(newPayment)
+  })
     .then((payment: any) => {
       res.json(payment)
     })
-  })
 }
 
 async function createPaymentIntent(payment: any) {
   const paymentAmount = payment.amount
-  const accountPaymentFrom = payment.paymentFrom.stripeCustomerId
+  const accountPaymentTo = payment.paymentTo.stripeCustomerId
   const paymentIntent = await stripe.paymentIntents.create({
     payment_method_types: ['card'],
-    amount: paymentAmount,
+    amount: paymentAmount * 100,
     currency: 'usd',
     application_fee_amount: 0,
+    setup_future_usage: 'off_session',
   }, {
-    stripeAccount: accountPaymentFrom,
+    stripeAccount: accountPaymentTo,
   });
-  console.log(paymentIntent)
+  payment.stripePaymentIntentId = paymentIntent.client_secret
+  payment.save()
+  return payment
 }
 
 function index(req: IGetUserAuthInfoRequest, res: Response) {
@@ -119,6 +122,14 @@ function indexProfilePayment(req: IGetUserAuthInfoRequest, res: Response) {
   })
 }
 
+function getPayemnt(req: IGetUserAuthInfoRequest, res: Response) {
+  Payment.findById(req.params.id)
+  .populate('initiator').populate('paymentFrom').populate('paymentTo')
+  .then(payments => {
+    res.json(payments)
+  })
+}
+
 function deletepayment(req: IGetUserAuthInfoRequest, res: Response) {
   Payment.findByIdAndDelete(req.params.id)
   .then(payment => {
@@ -145,5 +156,6 @@ export {
   update,
   indexIncompletePayment,
   indexPendingPayment,
-  indexProfilePayment
+  indexProfilePayment,
+  getPayemnt,
 }
