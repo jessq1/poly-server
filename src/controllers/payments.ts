@@ -25,14 +25,17 @@ function create(req: IGetUserAuthInfoRequest, res: Response) {
 async function createPaymentIntent(payment: any) {
   const paymentAmount = payment.amount
   const accountPaymentTo = payment.paymentTo.stripeCustomerId
+  const accountPaymentFrom = payment.paymentFrom.stripeCustomerId
   const paymentIntent = await stripe.paymentIntents.create({
     payment_method_types: ['card'],
     amount: paymentAmount * 100,
     currency: 'usd',
-    application_fee_amount: 0,
     setup_future_usage: 'off_session',
+    transfer_data: {
+      destination: accountPaymentTo,
+    },
   }, {
-    stripeAccount: accountPaymentTo,
+    stripeAccount: accountPaymentFrom,
   });
   payment.stripePaymentIntentId = paymentIntent.client_secret
   payment.save()
@@ -50,6 +53,9 @@ function index(req: IGetUserAuthInfoRequest, res: Response) {
     },
     {
       path: 'paymentTo',
+    },
+    {
+      path: 'person',
     },
   ])
   .then(payments => {
@@ -69,7 +75,10 @@ function indexPendingPayment(req: IGetUserAuthInfoRequest, res: Response) {
     },
     {
       path: 'paymentTo',
-    }
+    },
+    {
+      path: 'person',
+    },
   ])
   .then(payments => {
     res.json(payments)
@@ -88,7 +97,10 @@ function indexIncompletePayment(req: IGetUserAuthInfoRequest, res: Response) {
     },
     {
       path: 'paymentTo',
-    }
+    },
+    {
+      path: 'person',
+    },
   ])
   .then(payments => {
     res.json(payments)
@@ -113,6 +125,9 @@ function indexProfilePayment(req: IGetUserAuthInfoRequest, res: Response) {
     {
       path: 'paymentTo',
     },
+    {
+      path: 'person',
+    },
   ])
   .then(payments => {
     return payments.filter(p => p.completed)
@@ -124,7 +139,7 @@ function indexProfilePayment(req: IGetUserAuthInfoRequest, res: Response) {
 
 function getPayemnt(req: IGetUserAuthInfoRequest, res: Response) {
   Payment.findById(req.params.id)
-  .populate('initiator').populate('paymentFrom').populate('paymentTo')
+  .populate('initiator').populate('paymentFrom').populate('paymentTo').populate('person')
   .then(payments => {
     res.json(payments)
   })
@@ -137,13 +152,10 @@ function deletepayment(req: IGetUserAuthInfoRequest, res: Response) {
   })
 }
 
-function update(req: IGetUserAuthInfoRequest, res: Response) {
-  Payment.findByIdAndUpdate(req.params.id, req.body, {new: true})
+function updateStatus(req: IGetUserAuthInfoRequest, res: Response) {
+  Payment.findByIdAndUpdate(req.params.id, {completed: true})
   .then(updatedPayment => {
-    updatedPayment.populate('initiator').populate('paymentFrom').populate('paymentTo')
-    .then((payment: any) => {
-      res.json(payment)
-    })
+    res.json(updatedPayment)
   })
 }
 
@@ -153,7 +165,7 @@ export {
   create,
   index,
   deletepayment as delete,
-  update,
+  updateStatus,
   indexIncompletePayment,
   indexPendingPayment,
   indexProfilePayment,
