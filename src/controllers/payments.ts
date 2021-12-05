@@ -2,6 +2,7 @@ import { Payment } from '../models/payment'
 import {Profile} from '../models/profile'
 import { Response } from "express";
 import { IGetUserAuthInfoRequest } from "../types/express"
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 function create(req: IGetUserAuthInfoRequest, res: Response) {
   req.body.initiator = req.user.profile
@@ -19,6 +20,20 @@ function create(req: IGetUserAuthInfoRequest, res: Response) {
       res.json(payment)
     })
   })
+}
+
+async function createPaymentIntent(payment: any) {
+  const paymentAmount = payment.amount
+  const accountPaymentFrom = payment.paymentFrom.stripeCustomerId
+  const paymentIntent = await stripe.paymentIntents.create({
+    payment_method_types: ['card'],
+    amount: paymentAmount,
+    currency: 'usd',
+    application_fee_amount: 0,
+  }, {
+    stripeAccount: accountPaymentFrom,
+  });
+  console.log(paymentIntent)
 }
 
 function index(req: IGetUserAuthInfoRequest, res: Response) {
@@ -114,12 +129,13 @@ function deletepayment(req: IGetUserAuthInfoRequest, res: Response) {
 function update(req: IGetUserAuthInfoRequest, res: Response) {
   Payment.findByIdAndUpdate(req.params.id, req.body, {new: true})
   .then(updatedPayment => {
-    updatedPayment.populate('author')
+    updatedPayment.populate('initiator').populate('paymentFrom').populate('paymentTo')
     .then((payment: any) => {
       res.json(payment)
     })
   })
 }
+
 
 
 export {
