@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc -p .",
-    "start": "nodemon ./src/server.ts"
+    "start":"node src/server.js",
+    "postinstall":"tsc"
   },
   "author": "",
   "license": "ISC",
@@ -32,6 +33,7 @@
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9",
     "stripe": "^8.191.0",
+    "typescript": "^4.4.4",
     "zod": "^3.11.6"
   },
   "devDependencies": {
@@ -47,5 +49,8 @@
     "@types/pino": "^7.0.5",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.5.2"
-  }
+  },
+  "engines":{
+    "node":"14.17.0"
+ }
 }
