@@ -17,6 +17,7 @@ const profileSchema = new mongoose.Schema(
     balance: Number,
     created: { type: Date, default: Date.now },
     stripeCustomerId: String,
+    stripeOnboard: { type: Boolean, default: false },
     friends: [{type: mongoose.Schema.Types.ObjectId, ref: "Profile"}],
     payment: [{type: mongoose.Schema.Types.ObjectId, ref: "Payment"}],
     events:[{type: mongoose.Schema.Types.ObjectId, ref: "Event"}],

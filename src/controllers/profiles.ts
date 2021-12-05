@@ -9,10 +9,13 @@ export {
   userProfile,
   index,
   stripeAuthLink,
+  checkStripeOnboarding,
+  friend,
+  unfriend,
 }
 
 function index(req: IGetUserAuthInfoRequest, res: Response) {
-  Profile.find({})
+  Profile.find({stripeOnboard: true})
   .populate('friends')
   .populate('payment')
 //   .populate('events')
@@ -25,8 +28,10 @@ function userProfile(req: IGetUserAuthInfoRequest, res: Response) {
   Profile.findById(req.user?.profile)
   .populate('friends')
   .populate('payment')
-//   .populate('events')
+  // .populate('events')
   .then(profile => {
+    return checkStripeOnboarding(profile)
+  }).then(profile => {
     res.json(profile)
   })
 }
@@ -40,9 +45,45 @@ async function stripeAuthLink(req: IGetUserAuthInfoRequest, res: Response) {
       return_url: siteUrl + '/',
       type: 'account_onboarding',
     })
-  console.log(accountLink)
-  // res.redirect(
-  //     accountLink.url
-  //   );
   res.json(accountLink)
+}
+
+async function checkStripeOnboarding(profile: any) {
+  const accountId = profile.stripeCustomerId
+
+  const account = await stripe.accounts.retrieve(
+    accountId
+  )
+  if(account.charges_enabled){
+      profile.stripeOnboard =  true
+      profile.save()
+    }
+  return profile
+}
+
+function friend(req: IGetUserAuthInfoRequest, res: Response) {
+  Profile.findById(req.user.profile)
+  .then(profile => {
+    profile.friends.push(req.params.id)
+    return profile.save()
+  })
+    .then(profile => {
+      return profile.populate('friends').populate('payment')
+    })
+    .then((profile)=> {
+      res.json(profile)
+    })
+}
+
+function unfriend(req: IGetUserAuthInfoRequest, res: Response) {
+  Profile.findById(req.user.profile)
+  .populate('friends')
+  .populate('payment')
+  .then(profile => {
+    profile.friends.remove({ _id: req.params.id })
+    profile.save()
+    .then(()=> {
+      res.json(profile)
+    })
+  })
 }
